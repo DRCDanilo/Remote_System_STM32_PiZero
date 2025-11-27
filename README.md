@@ -79,7 +79,7 @@ Le code du STM32 sera écrit en langage C, en utilisant la bibliothèque HAL.
 ### 1.2 Setup du STM32
 
 Pour ce TP, on a utilisé:
-* Une liaison I²C. I2C2 : I2C2_SCL -> PB_6. I2C2_SDA -> PB_3.
+* Une liaison I²C. I2C3 : I2C3_SCL -> PA_8. I2C3_SDA -> PB_4.
 * Une liasion UART sur USB : UART2 sur les broches PA_2 et PA_3.
 * Une liaison UART indépendante pour la communication avec le Raspberry : UART1 : UART1_RX -> PA_10. UART1_TX -> PA_9.
 * Une liaison CAN : CAN1 : CAN1_RD -> PB_8. CAN1_TD -> PB_9.
