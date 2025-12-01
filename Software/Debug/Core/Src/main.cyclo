@@ -1,0 +1,6 @@
+../Core/Src/main.c:52:6:BMP280_I2CWrite	1
+../Core/Src/main.c:60:6:BMP280_I2CRead	1
+../Core/Src/main.c:67:6:BMP280_Init	1
+../Core/Src/main.c:88:5:main	1
+../Core/Src/main.c:136:6:SystemClock_Config	3
+../Core/Src/main.c:187:6:Error_Handler	1
