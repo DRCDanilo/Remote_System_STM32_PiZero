@@ -64,9 +64,43 @@ void BMP280_I2CRead(uint8_t reg){
 	printf("The registered address value is : 0x%02X\r\n",buf);
 }
 
+void BMP280_I2CMultiRead(uint8_t startReg,uint8_t size, uint8_t * data){
+	HAL_I2C_Master_Transmit(&hi2c1,BMP280_ADDR,&startReg,1, HAL_MAX_DELAY);
+	HAL_I2C_Master_Receive(&hi2c1,BMP280_ADDR,data,size,HAL_MAX_DELAY);
+}
+
+void BMP280_TempMes(){
+	uint8_t data[3];
+	BMP280_I2CMultiRead(0xFA,3,data);
+	for(int i = 0; i < 3; i++)
+		    {
+		        printf("%02X", data[i]);
+		    }
+	printf("H\r\n");
+}
+
+void BMP280_PresMes(){
+	uint8_t data[3];
+	BMP280_I2CMultiRead(0xF7,3,data);
+	for(int i = 0; i < 3; i++)
+		    {
+		        printf("%02X", data[i]);
+		    }
+	printf("H\r\n");
+}
+
 void BMP280_Init(){
+
 	BMP280_I2CWrite(0xF4,0x5F);
 	BMP280_I2CRead(0xF4);
+	uint8_t data[26];
+	BMP280_I2CMultiRead(0x88,26,data);
+	for(int i = 0; i < 26; i++)
+	    {
+	        printf("0x%02X ", data[i]);
+	    }
+	printf("\r\n");
+
 	//BMP280_I2CRead
 }
 /* USER CODE END PV */
@@ -112,6 +146,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_I2C1_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   HAL_I2C_Master_Transmit(&hi2c1,BMP280_ADDR,&reg,1, HAL_MAX_DELAY);
   HAL_I2C_Master_Receive(&hi2c1,BMP280_ADDR, &buf,1,HAL_MAX_DELAY);
@@ -124,7 +159,8 @@ int main(void)
 	while (1)
 	{
     /* USER CODE END WHILE */
-
+		BMP280_PresMes();
+		HAL_Delay(100);
     /* USER CODE BEGIN 3 */
 	}
   /* USER CODE END 3 */
