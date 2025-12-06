@@ -6,7 +6,7 @@ Ce travail pratique a pour but de
 
 Le schéma du matériel à utiliser est :
 
-<img width="1047" height="447" alt="path1315-0-9-37" src="https://github.com/user-attachments/assets/23408b40-98c5-46c7-8e92-ac812d4f631c" />
+<img width="523" height="223" alt="path1315-0-9-37" src="https://github.com/user-attachments/assets/23408b40-98c5-46c7-8e92-ac812d4f631c" />
 
 ## 1. Bus I²C
 
@@ -139,4 +139,76 @@ Pour activer le port série sur connecteur GPIO, sur la partition boot, on a mod
 enable_uart=1
 dtoverlay=disable-bt
 ```
+
+Pour que le noyau libère le port UART, il faut retirer l'option suivante, dans le fichier cmdline.txt:
+
+```
+console=serial0,115200
+```
+### 2.2 Port Série
+
+**Loopback**
+
+Il faut brancher le port série du Raspberry en boucle: RX sur TX.
+
+Pour testet le port série, il est possible de faire avec le logiciel minicom. On a installé le logiciel minicom, et après avec la commande on a l'exécuté:
+
+```
+minicom -D /dev/ttyAMA0
+```
+
+**Communication avec la STM32**
+Le port UART pour la communication avec la Raspberri Pi Zero est le port UART1.
+
+Le protocole de communication entre le Raspberry et la STM32 est le suivant:
+
+<img width="680" height="197" alt="image" src="https://github.com/user-attachments/assets/98c2a7a0-5822-4a7f-8bd1-bcf31a509976" />
+
+### 2.3 Commande depuis Python
+
+On a installé pip pour python3 sur le Raspberry avec les commandes:
+
+```
+sudo apt update
+sudo apt install python3-pip
+```
+
+Après, on a installé la bibliothèque pyserial pour acceder au port série.
+
+On a écrit un script en utilisant Python 3 qui permet communiquer avec le STM32. Le script est dans **...?**
+
+## 3. Interface REST
+
+Objectif: Développement d'une interface REST sur le Raspberry
+
+### 3.1 Installation du serveur Python
+
+**Installation**
+
+**Premier fichier Web**
+
+### 3.2 Première page REST
+
+**Première route**
+
+**Première page REST**
+**Réponse JSON**
+
+**1re solution**
+
+**2e solution**
+
+**Erreur 404**
+
+### 3.3 Nouvelles métodes HTTP
+
+**Méthodes POST, PUT, DELETE…**
+
+**Méthode POST**
+
+**API CRUD**
+
+<img width="646" height="381" alt="image" src="https://github.com/user-attachments/assets/3342fa5b-49a4-4e99-aa7e-6dfc4e3374b9" />
+
+### 3.4 Et encore plus fort...
 
