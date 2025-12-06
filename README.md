@@ -122,3 +122,21 @@ PUTCHAR_PROTOTYPE
 ### 1.3 Communication I²C 
 
 Identification du BMP280
+
+## 2. Interfaçage STM32 - Raspberry
+
+Objectif: Permettre l'interrogation du STM32 via un Raspberry Pi Zero Wifi.
+
+### 2.1 Mise en route du Raspberry Pi Zero
+
+**Préparation du Raspberry**
+
+Avec l'aide du logiciel Raspberry Pi Imager on a installé l'image de l'OS Raspberry Pi OS Lite.
+
+Pour activer le port série sur connecteur GPIO, sur la partition boot, on a modifié le fichier config.txt. On a utilisé l'editeur nano pour ajouter à la fin les lignes suivantes:
+
+```
+enable_uart=1
+dtoverlay=disable-bt
+```
+
