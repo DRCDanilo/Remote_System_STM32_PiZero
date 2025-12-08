@@ -220,24 +220,143 @@ Après, on a À nouveau, délogguez vous, puis relogguez vous en tant que XXX po
 
 **Premier fichier Web**
 
+
 ### 3.2 Première page REST
+
 
 **Première route**
 
+Quel est le rôle du décorateur @app.route?
+
+Le décorateur serve pour indiquer l'itineraire de la page.
+
+Quel est le role du fragment ```int:index```?
+
+Crée de sub-pages avec la valeur de index.
+
+Pour pouvoir prétendre être RESTful, votre serveur va devoir:
+
+    répondre sous forme JSON.
+    différencier les méthodes HTTP
+
+C’est ce que nous allons voir maintenant.
+
+
 **Première page REST**
+
 **Réponse JSON**
+
+On a modifié le fihcier hello.py. On a ajouté la ligne import json et on a remplacé la dernière ligne de la fonction api_welcome_index par:
+
+```
+return json.dumps({"index": index, "val": welcome[index]})
+```
+
+Le résultat est:
+
+IMGAGE DU ORDINATEUR DE DAVID AVEC {"index":6, "val": "c"}.
+
+Est-ce suffisant pour dire que la réponse est bien du JSON? : Non, car le Content-Type n'est pas JSON, c'est HTML.
+
 
 **1re solution**
 
+On a modifié la réponse, ....,  en ajoutant la commande suivante: 
+
+```
+return json.dumps({"index": index, "val": welcome[index]}), {"Content-Type": "application/json"}
+```
+
+IMAGEN DE DAVID OÙ IL DIT OBJECT TYPE: JSON
+
+
 **2e solution**
+On a utilisé jsonify() existe dans la bibliothèque. On a ajouté ```from flask import jsonify```.
+
+
+```
+return jsonify({"index": index, "val": welcome[index]})
+```
 
 **Erreur 404**
+
+On a téléchargé le fichier page_not:found.html (https://moodle.ensea.fr/mod/resource/view.php?id=19916). On l'ajouté dans le fichier templates. 
+
+On a ajouté le code suivant:
+
+```
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
+```
+
+On a modifié la fonctions api_welcome_index de manière à retourner cette page 404 si jamais l’index n’est pas correct. Flask fournit une fonction pour cela : abort(404). Dans le code du fichier hello.py on a ajouté:
+
+```
+from flask import abort, render_template, request
+```
+
+Aussi dans la fonction api_welcome_index on a écrit: 
+
+```
+if(index>len(welcome)):
+  abort(404)
+```
+
+IMAGE DE DAVID AVEC L'ERREUR 404 DANS LE NAVIGATEUR
+
 
 ### 3.3 Nouvelles métodes HTTP
 
 **Méthodes POST, PUT, DELETE…**
+Pour être encore un peu plus RESTful, votre application doit gérer plusieurs méthodes (verb) HTTP
 
 **Méthode POST**
+
+On a modifié la fonction en ajoutant des paramètres de la manière suivante:
+
+```
+@app.route('/api/welcome/<int:index>', methods=['GET','POST'])
+```
+
+En plus, on a ajouté la fonction suivante:
+
+```
+@app.route('/api/request/', methods=['GET', 'POST'])
+@app.route('/api/request/<path>', methods=['GET','POST'])
+def api_request(path=None):
+    resp = {
+            "method":   request.method,
+            "url" :  request.url,
+            "path" : path,
+            "args": request.args,
+            "headers": dict(request.headers),
+    }
+    if request.method == 'POST':
+        resp["POST"] = {
+                "data" : request.get_json(),
+                }
+    return jsonify(resp)
+```
+
+<img width="795" height="208" alt="image" src="https://github.com/user-attachments/assets/c9aa6767-2189-4ee4-be45-716a155b1800" />
+
+En plus, on a testé depuis la Raspberry:
+
+<img width="741" height="192" alt="image" src="https://github.com/user-attachments/assets/c722d68d-3c07-4d3f-8644-56acdde5c4b6" />
+
+On a utilisé l’extension RESTED sur firefox pour avoir une réponse qui peuple correctement les champs *args* et *data*.
+
+On a testé la méthode POST :
+
+<img width="1240" height="829" alt="image" src="https://github.com/user-attachments/assets/4287ce00-ae0a-478f-b2dd-71c199a301ad" />
+
+On a testé la méthode GET : 
+
+<img width="1237" height="847" alt="image" src="https://github.com/user-attachments/assets/860bfba0-6300-4df3-94e6-e6b2276038fb" />
+
+
+
 
 **API CRUD**
 
