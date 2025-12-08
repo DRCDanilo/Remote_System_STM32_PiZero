@@ -185,6 +185,39 @@ Objectif: Développement d'une interface REST sur le Raspberry
 
 **Installation**
 
+On a créé d'autre utilisateur avec utilisateur différent de pi, remplacer XXX par le nom de votre choix, avec les droits de sudo et  d'accès au port série (dialout): 
+
+```
+sudo adduser dada
+sudo usermod -aG sudo dada
+sudo usermod -aG dialout dada
+```
+
+
+On a Délogguez vous, puis relogguez vous en tant que dada.
+
+Créez un répertoire pour le développement de votre serveur. Dans ce répertoire, créez un fichier nommé requirement.txt dans lequel vous placerez le texte suivants:
+
+```
+pyserial
+flask
+```
+
+En fait, après on a doit installer flask en utilisant la command:
+
+```
+sudo apt install python3-flask
+```
+
+Pour pyserial on a utilisé: 
+
+```
+sudo apt install python3-serial
+```
+
+Après, on a À nouveau, délogguez vous, puis relogguez vous en tant que XXX pour mettre à jour le PATH et permettre de lancer flask.
+
+
 **Premier fichier Web**
 
 ### 3.2 Première page REST
