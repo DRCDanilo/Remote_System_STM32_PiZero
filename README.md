@@ -364,3 +364,33 @@ On a testé la méthode GET :
 
 ### 3.4 Et encore plus fort...
 
+
+## 4. Bus CAN
+
+Objectif: Développement d'une API Rest et mise en place d'un périphérique sur bus CAN
+
+Les cartes STM32L476 sont équipées d'un contrôleur CAN intégré. Pour pouvoir les utiliser, il faut leur adjoindre un Tranceiver CAN. Ce rôle est dévolu à un TJA1050 (https://www.nxp.com/docs/en/data-sheet/TJA1050.pdf). Ce composant est alimenté en 5V, mais possède des E/S compatibles 3,3V.
+
+Afin de faciliter sa mise en œuvre, ce composant a été installé sur une carte fille (shield) au format Arduino, qui peut donc s'insérer sur les cartes nucléo64:
+
+<img width="1289" height="575" alt="image" src="https://github.com/user-attachments/assets/7674325d-4afa-4afe-9aad-5f996825ada9" />
+
+Ce shield possède un connecteur subd9, qui permet de connecter un câble au format CAN. Pour rappel, le brochage de ce connecteur est le suivant:
+
+<img width="745" height="708" alt="image" src="https://github.com/user-attachments/assets/868377f5-1a24-4b75-b836-f30a180d705a" />
+
+Seules les broches 2, 3 et 7 sont utilisés sur les câbles à votre dispositions.
+
+**Remarque**: Vous pourrez noter que les lignes CANL et CANH ont été routées en tant que paire différentielle, et qu'une boucle a été ajouté à la ligne CANL pour la mettre à la même longueur que la ligne CANH.
+
+
+Vous allez utiliser le bus CAN pour piloter un module moteur pas-à-pas. Ce module s'alimente en +12V. L'ensemble des informations nécessaires pour utiliser ce module est disponible dans ce document:
+https://enseafr-my.sharepoint.com/:b:/r/personal/danilo_delriocisneros_ensea_fr/Documents/ENSEA/Dipl%C3%B4me%20-%20Semestres/S9%20-%20ESE/4-Bus%20et%20r%C3%A9seaux%20industriels/docs%20publics%20for%20GitHub/moteur.pdf?csf=1&web=1&e=Sqezai
+
+La carte moteur est un peu capricieuse et ne semble tolérer qu'une vitesse CAN de 500kbit/s. Pensez à régler CubeMx en conséquence.
+Edit 2022: Il semble que ce soit surtout le ratio seg2/(seg1+seg2), qui détermine l'instant de décision, qui doit être aux alentours de 87%. Vous pouvez utiliser le calculateur suivant: http://www.bittiming.can-wiki.info/
+
+### 4.1 Pilotage du moteur
+
+
+### 4.2 Interfaçage avec le capteur
