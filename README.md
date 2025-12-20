@@ -6,7 +6,7 @@ Ce travail pratique a pour but de
 
 Le schéma du matériel à utiliser est :
 
-<img width="1047" height="447" alt="path1315-0-9-37" src="https://github.com/user-attachments/assets/23408b40-98c5-46c7-8e92-ac812d4f631c" />
+<img width="523" height="223" alt="path1315-0-9-37" src="https://github.com/user-attachments/assets/23408b40-98c5-46c7-8e92-ac812d4f631c" />
 
 ## 1. Bus I²C
 
@@ -122,3 +122,275 @@ PUTCHAR_PROTOTYPE
 ### 1.3 Communication I²C 
 
 Identification du BMP280
+
+## 2. Interfaçage STM32 - Raspberry
+
+Objectif: Permettre l'interrogation du STM32 via un Raspberry Pi Zero Wifi.
+
+### 2.1 Mise en route du Raspberry Pi Zero
+
+**Préparation du Raspberry**
+
+Avec l'aide du logiciel Raspberry Pi Imager on a installé l'image de l'OS Raspberry Pi OS Lite.
+
+Pour activer le port série sur connecteur GPIO, sur la partition boot, on a modifié le fichier config.txt. On a utilisé l'editeur nano pour ajouter à la fin les lignes suivantes:
+
+```
+enable_uart=1
+dtoverlay=disable-bt
+```
+
+Pour que le noyau libère le port UART, il faut retirer l'option suivante, dans le fichier cmdline.txt:
+
+```
+console=serial0,115200
+```
+### 2.2 Port Série
+
+**Loopback**
+
+Il faut brancher le port série du Raspberry en boucle: RX sur TX.
+
+Pour testet le port série, il est possible de faire avec le logiciel minicom. On a installé le logiciel minicom, et après avec la commande on a l'exécuté:
+
+```
+minicom -D /dev/ttyAMA0
+```
+
+**Communication avec la STM32**
+Le port UART pour la communication avec la Raspberri Pi Zero est le port UART1.
+
+Le protocole de communication entre le Raspberry et la STM32 est le suivant:
+
+<img width="680" height="197" alt="image" src="https://github.com/user-attachments/assets/98c2a7a0-5822-4a7f-8bd1-bcf31a509976" />
+
+### 2.3 Commande depuis Python
+
+On a installé pip pour python3 sur le Raspberry avec les commandes:
+
+```
+sudo apt update
+sudo apt install python3-pip
+```
+
+Après, on a installé la bibliothèque pyserial pour acceder au port série.
+
+On a écrit un script en utilisant Python 3 qui permet communiquer avec le STM32. Le script est dans **...?**
+
+## 3. Interface REST
+
+Objectif: Développement d'une interface REST sur le Raspberry
+
+### 3.1 Installation du serveur Python
+
+**Installation**
+
+On a créé d'autre utilisateur avec utilisateur différent de pi, remplacer XXX par le nom de votre choix, avec les droits de sudo et  d'accès au port série (dialout): 
+
+```
+sudo adduser dada
+sudo usermod -aG sudo dada
+sudo usermod -aG dialout dada
+```
+
+
+On a Délogguez vous, puis relogguez vous en tant que dada.
+
+Créez un répertoire pour le développement de votre serveur. Dans ce répertoire, créez un fichier nommé requirement.txt dans lequel vous placerez le texte suivants:
+
+```
+pyserial
+flask
+```
+
+En fait, après on a doit installer flask en utilisant la command:
+
+```
+sudo apt install python3-flask
+```
+
+Pour pyserial on a utilisé: 
+
+```
+sudo apt install python3-serial
+```
+
+Après, on a À nouveau, délogguez vous, puis relogguez vous en tant que XXX pour mettre à jour le PATH et permettre de lancer flask.
+
+
+**Premier fichier Web**
+
+
+### 3.2 Première page REST
+
+
+**Première route**
+
+Quel est le rôle du décorateur @app.route?
+
+Le décorateur serve pour indiquer l'itineraire de la page.
+
+Quel est le role du fragment ```int:index```?
+
+Crée de sub-pages avec la valeur de index.
+
+Pour pouvoir prétendre être RESTful, votre serveur va devoir:
+
+    répondre sous forme JSON.
+    différencier les méthodes HTTP
+
+C’est ce que nous allons voir maintenant.
+
+
+**Première page REST**
+
+**Réponse JSON**
+
+On a modifié le fihcier hello.py. On a ajouté la ligne import json et on a remplacé la dernière ligne de la fonction api_welcome_index par:
+
+```
+return json.dumps({"index": index, "val": welcome[index]})
+```
+
+Le résultat est:
+
+IMGAGE DU ORDINATEUR DE DAVID AVEC {"index":6, "val": "c"}.
+
+Est-ce suffisant pour dire que la réponse est bien du JSON? : Non, car le Content-Type n'est pas JSON, c'est HTML.
+
+
+**1re solution**
+
+On a modifié la réponse, ....,  en ajoutant la commande suivante: 
+
+```
+return json.dumps({"index": index, "val": welcome[index]}), {"Content-Type": "application/json"}
+```
+
+IMAGEN DE DAVID OÙ IL DIT OBJECT TYPE: JSON
+
+
+**2e solution**
+On a utilisé jsonify() existe dans la bibliothèque. On a ajouté ```from flask import jsonify```.
+
+
+```
+return jsonify({"index": index, "val": welcome[index]})
+```
+
+**Erreur 404**
+
+On a téléchargé le fichier page_not:found.html (https://moodle.ensea.fr/mod/resource/view.php?id=19916). On l'ajouté dans le fichier templates. 
+
+On a ajouté le code suivant:
+
+```
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template('page_not_found.html'), 404
+```
+
+On a modifié la fonctions api_welcome_index de manière à retourner cette page 404 si jamais l’index n’est pas correct. Flask fournit une fonction pour cela : abort(404). Dans le code du fichier hello.py on a ajouté:
+
+```
+from flask import abort, render_template, request
+```
+
+Aussi dans la fonction api_welcome_index on a écrit: 
+
+```
+if(index>len(welcome)):
+  abort(404)
+```
+
+IMAGE DE DAVID AVEC L'ERREUR 404 DANS LE NAVIGATEUR
+
+
+### 3.3 Nouvelles métodes HTTP
+
+**Méthodes POST, PUT, DELETE…**
+Pour être encore un peu plus RESTful, votre application doit gérer plusieurs méthodes (verb) HTTP
+
+**Méthode POST**
+
+On a modifié la fonction en ajoutant des paramètres de la manière suivante:
+
+```
+@app.route('/api/welcome/<int:index>', methods=['GET','POST'])
+```
+
+En plus, on a ajouté la fonction suivante:
+
+```
+@app.route('/api/request/', methods=['GET', 'POST'])
+@app.route('/api/request/<path>', methods=['GET','POST'])
+def api_request(path=None):
+    resp = {
+            "method":   request.method,
+            "url" :  request.url,
+            "path" : path,
+            "args": request.args,
+            "headers": dict(request.headers),
+    }
+    if request.method == 'POST':
+        resp["POST"] = {
+                "data" : request.get_json(),
+                }
+    return jsonify(resp)
+```
+
+<img width="795" height="208" alt="image" src="https://github.com/user-attachments/assets/c9aa6767-2189-4ee4-be45-716a155b1800" />
+
+En plus, on a testé depuis la Raspberry:
+
+<img width="741" height="192" alt="image" src="https://github.com/user-attachments/assets/c722d68d-3c07-4d3f-8644-56acdde5c4b6" />
+
+On a utilisé l’extension RESTED sur firefox pour avoir une réponse qui peuple correctement les champs *args* et *data*.
+
+On a testé la méthode POST :
+
+<img width="1240" height="829" alt="image" src="https://github.com/user-attachments/assets/4287ce00-ae0a-478f-b2dd-71c199a301ad" />
+
+On a testé la méthode GET : 
+
+<img width="1237" height="847" alt="image" src="https://github.com/user-attachments/assets/860bfba0-6300-4df3-94e6-e6b2276038fb" />
+
+
+
+
+**API CRUD**
+
+<img width="646" height="381" alt="image" src="https://github.com/user-attachments/assets/3342fa5b-49a4-4e99-aa7e-6dfc4e3374b9" />
+
+### 3.4 Et encore plus fort...
+
+
+## 4. Bus CAN
+
+Objectif: Développement d'une API Rest et mise en place d'un périphérique sur bus CAN
+
+Les cartes STM32L476 sont équipées d'un contrôleur CAN intégré. Pour pouvoir les utiliser, il faut leur adjoindre un Tranceiver CAN. Ce rôle est dévolu à un TJA1050 (https://www.nxp.com/docs/en/data-sheet/TJA1050.pdf). Ce composant est alimenté en 5V, mais possède des E/S compatibles 3,3V.
+
+Afin de faciliter sa mise en œuvre, ce composant a été installé sur une carte fille (shield) au format Arduino, qui peut donc s'insérer sur les cartes nucléo64:
+
+<img width="1289" height="575" alt="image" src="https://github.com/user-attachments/assets/7674325d-4afa-4afe-9aad-5f996825ada9" />
+
+Ce shield possède un connecteur subd9, qui permet de connecter un câble au format CAN. Pour rappel, le brochage de ce connecteur est le suivant:
+
+<img width="745" height="708" alt="image" src="https://github.com/user-attachments/assets/868377f5-1a24-4b75-b836-f30a180d705a" />
+
+Seules les broches 2, 3 et 7 sont utilisés sur les câbles à votre dispositions.
+
+**Remarque**: Vous pourrez noter que les lignes CANL et CANH ont été routées en tant que paire différentielle, et qu'une boucle a été ajouté à la ligne CANL pour la mettre à la même longueur que la ligne CANH.
+
+
+Vous allez utiliser le bus CAN pour piloter un module moteur pas-à-pas. Ce module s'alimente en +12V. L'ensemble des informations nécessaires pour utiliser ce module est disponible dans ce document:
+https://enseafr-my.sharepoint.com/:b:/r/personal/danilo_delriocisneros_ensea_fr/Documents/ENSEA/Dipl%C3%B4me%20-%20Semestres/S9%20-%20ESE/4-Bus%20et%20r%C3%A9seaux%20industriels/docs%20publics%20for%20GitHub/moteur.pdf?csf=1&web=1&e=Sqezai
+
+La carte moteur est un peu capricieuse et ne semble tolérer qu'une vitesse CAN de 500kbit/s. Pensez à régler CubeMx en conséquence.
+Edit 2022: Il semble que ce soit surtout le ratio seg2/(seg1+seg2), qui détermine l'instant de décision, qui doit être aux alentours de 87%. Vous pouvez utiliser le calculateur suivant: http://www.bittiming.can-wiki.info/
+
+### 4.1 Pilotage du moteur
+
+
+### 4.2 Interfaçage avec le capteur
