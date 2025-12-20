@@ -1,0 +1,6 @@
+../Core/Src/BMP280.c:20:6:BMP280_I2CWrite	1
+../Core/Src/BMP280.c:28:6:BMP280_I2CRead	1
+../Core/Src/BMP280.c:35:6:BMP280_I2CMultiRead	1
+../Core/Src/BMP280.c:40:6:BMP280_TempMes	2
+../Core/Src/BMP280.c:50:6:BMP280_PresMes	2
+../Core/Src/BMP280.c:59:6:BMP280_Init	2

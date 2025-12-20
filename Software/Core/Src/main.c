@@ -18,9 +18,13 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "can.h"
 #include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
+#include "BMP280.h"
+#include <stdio.h>
+#include "shell.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -34,8 +38,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define BMP280_ADDR (0x77<<1)
-#define ID_ADDR 0xD0
+
+#define COEF_MOTOR 14
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -45,64 +49,22 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t buf = 0;
-uint8_t reg = ID_ADDR;
+
+extern h_shell_t hshell1;
 
 
-void BMP280_I2CWrite(uint8_t reg, uint8_t data){
-	uint8_t buf[2];
-	buf[0] = reg;
-	buf[1] = data;
-	HAL_I2C_Master_Transmit(&hi2c1,BMP280_ADDR,buf,2, HAL_MAX_DELAY);
+uint8_t aData[8];
+uint32_t pTxMailbox;
+CAN_TxHeaderTypeDef pHeader ={
+	.StdId = 0x61,
+	.ExtId = 0x61,
+	.IDE = CAN_ID_STD,
+	.RTR = CAN_RTR_DATA,
+	.DLC = 2,
+	.TransmitGlobalTime = DISABLE
+};
 
-}
 
-void BMP280_I2CRead(uint8_t reg){
-	uint8_t buf = 0;
-	HAL_I2C_Master_Transmit(&hi2c1,BMP280_ADDR,&reg,1, HAL_MAX_DELAY);
-	HAL_I2C_Master_Receive(&hi2c1,BMP280_ADDR, &buf,1,HAL_MAX_DELAY);
-	printf("The registered address value is : 0x%02X\r\n",buf);
-}
-
-void BMP280_I2CMultiRead(uint8_t startReg,uint8_t size, uint8_t * data){
-	HAL_I2C_Master_Transmit(&hi2c1,BMP280_ADDR,&startReg,1, HAL_MAX_DELAY);
-	HAL_I2C_Master_Receive(&hi2c1,BMP280_ADDR,data,size,HAL_MAX_DELAY);
-}
-
-void BMP280_TempMes(){
-	uint8_t data[3];
-	BMP280_I2CMultiRead(0xFA,3,data);
-	for(int i = 0; i < 3; i++)
-		    {
-		        printf("%02X", data[i]);
-		    }
-	printf("H\r\n");
-}
-
-void BMP280_PresMes(){
-	uint8_t data[3];
-	BMP280_I2CMultiRead(0xF7,3,data);
-	for(int i = 0; i < 3; i++)
-		    {
-		        printf("%02X", data[i]);
-		    }
-	printf("H\r\n");
-}
-
-void BMP280_Init(){
-
-	BMP280_I2CWrite(0xF4,0x5F);
-	BMP280_I2CRead(0xF4);
-	uint8_t data[26];
-	BMP280_I2CMultiRead(0x88,26,data);
-	for(int i = 0; i < 26; i++)
-	    {
-	        printf("0x%02X ", data[i]);
-	    }
-	printf("\r\n");
-
-	//BMP280_I2CRead
-}
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -147,20 +109,31 @@ int main(void)
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_USART1_UART_Init();
+  MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-  HAL_I2C_Master_Transmit(&hi2c1,BMP280_ADDR,&reg,1, HAL_MAX_DELAY);
-  HAL_I2C_Master_Receive(&hi2c1,BMP280_ADDR, &buf,1,HAL_MAX_DELAY);
-  printf("The ID address is : 0x%02X\r\n",buf);
   BMP280_Init();
+  HAL_CAN_Start(&hcan1);
+
+  init_device();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
+
+		//printf("0x%04X\r\n",comp);
+//		aData[0] = 0x5A;
+//		aData[1] = 0x00;
+//		HAL_CAN_AddTxMessage(&hcan1,&pHeader, aData, &pTxMailbox);
+//		HAL_Delay(100);
+//		aData[0] = 0x00;
+//		aData[1] = 0x01;
+//		HAL_CAN_AddTxMessage(&hcan1,&pHeader, aData, &pTxMailbox);
+//		HAL_Delay(100);
+
     /* USER CODE END WHILE */
-		BMP280_PresMes();
-		HAL_Delay(100);
+
     /* USER CODE BEGIN 3 */
 	}
   /* USER CODE END 3 */

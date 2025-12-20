@@ -1,9 +1,3 @@
-../Core/Src/main.c:52:6:BMP280_I2CWrite	32	static
-../Core/Src/main.c:60:6:BMP280_I2CRead	32	static
-../Core/Src/main.c:67:6:BMP280_I2CMultiRead	24	static
-../Core/Src/main.c:72:6:BMP280_TempMes	16	static
-../Core/Src/main.c:82:6:BMP280_PresMes	16	static
-../Core/Src/main.c:92:6:BMP280_Init	40	static
-../Core/Src/main.c:123:5:main	16	static
-../Core/Src/main.c:173:6:SystemClock_Config	88	static
-../Core/Src/main.c:224:6:Error_Handler	4	static,ignoring_inline_asm
+../Core/Src/main.c:85:5:main	8	static
+../Core/Src/main.c:146:6:SystemClock_Config	88	static
+../Core/Src/main.c:197:6:Error_Handler	4	static,ignoring_inline_asm

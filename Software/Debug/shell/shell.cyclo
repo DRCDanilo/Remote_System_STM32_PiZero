@@ -1,0 +1,15 @@
+../shell/shell.c:35:12:is_character_valid	9
+../shell/shell.c:40:12:is_string_valid	4
+../shell/shell.c:69:12:sh_help	2
+../shell/shell.c:84:12:sh_test_list	2
+../shell/shell.c:95:9:shell_uart2_transmit	1
+../shell/shell.c:102:9:shell_uart2_receive	1
+../shell/shell.c:108:6:HAL_UART_RxCpltCallback	3
+../shell/shell.c:117:6:loop	1
+../shell/shell.c:122:6:init_device	1
+../shell/shell.c:136:12:sh_get_temp	1
+../shell/shell.c:150:12:sh_get_pres	1
+../shell/shell.c:172:6:shell_init	1
+../shell/shell.c:200:5:shell_add	3
+../shell/shell.c:225:12:shell_exec	6
+../shell/shell.c:266:5:shell_run	8
