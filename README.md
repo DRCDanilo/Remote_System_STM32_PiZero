@@ -2,7 +2,6 @@
 
 Travail pratique de Bus et Reseaux par David CONTION et Danilo DEL RIO CISNEROS. Novembre 2025.
 
-Ce travail pratique a pour but de 
 
 Le schéma du matériel à utiliser est :
 
@@ -121,7 +120,53 @@ PUTCHAR_PROTOTYPE
 
 ### 1.3 Communication I²C 
 
-Identification du BMP280
+**Primitives I²C sous STM32_HAL**
+
+L'API HAL (Hardware Abstraction Layer) fournit par ST propose entre autres 2 primitives permettant d'interagir avec le bus I²C en mode Master:
+
+    HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+
+    HAL_StatusTypeDef HAL_I2C_Master_Receive(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout)
+
+où:
+
+    - I2C_HandleTypeDef hi2c: structure stockant les informations du contrôleur I²C
+
+    - uint16_t DevAddress: adresse I³C du périphérique Slave avec lequel on souhaite interagir.
+
+    - uint8_t *pData: buffer de données
+
+    - uint16_t Size: taille du buffer de données
+
+    - uint32_t Timeout: peut prendre la valeur HAL_MAX_DELAY
+
+
+## Communication avec le BMP280
+
+**Identification du BMP280**
+
+L'identification du BMP280 consiste en la lecture du registre ID
+
+En I²C, la lecture se déroule de la manière suivante:
+
+- Envoyer l'adresse du registre ID
+- Recevoir 1 octet correspondant au contenu du registre
+
+On a bien vérifié que le contenu du registre correspond bien à la datasheet : 0x58
+
+
+<img width="318" height="156" alt="image" src="https://github.com/user-attachments/assets/db89eaef-5ad4-4c51-a9d0-c0bdf6eafc60" />
+
+
+**Configuration du BMP280**
+
+
+**Récupération de l'étalonnage, de la température et de la pression**
+
+
+**Calcul des températures et des pression compensées**
+
+
 
 ## 2. Interfaçage STM32 - Raspberry
 
