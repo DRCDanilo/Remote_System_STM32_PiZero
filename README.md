@@ -160,6 +160,37 @@ On a bien vérifié que le contenu du registre correspond bien à la datasheet :
 
 **Configuration du BMP280**
 
+Avant de pouvoir faire une mesure, il faut configurer le BMP280.
+
+Pour commencer, nous allons utiliser la configuration suivante: mode normal, Pressure oversampling x16, Temperature oversampling x2.
+
+Le registre pour configurer le capteur est le registre 0xF4 "ctrl_meas".
+
+ctrl_meas:
+
+osrs_t[2:0] osrs_p[2:0] mode[1:0]
+
+De la datasheet et pour avoir la configuration souhaitée:
+
+osrs_t       0  1  0
+
+osrs_p                1  0  1
+
+mode                            1  1
+
+**ctrl_meas : 0101 0111 = 0x57**
+
+En I²C, l'écriture dans un registre se déroule de la manière suivante:
+
+- Envoyer l'adresse du registre à écrire, suivi de la valeur du registre
+- Si on reçoit immédiatement, la valeur reçu sera la nouvelle valeur du registre
+
+Vérifiez que la configuration a bien été écrite dans le registre.
+
+On a réussi à écrire la valeur correcte dans le registre : 
+
+<img width="451" height="190" alt="image" src="https://github.com/user-attachments/assets/22bb390b-e915-458d-b638-c476de07462b" />
+
 
 **Récupération de l'étalonnage, de la température et de la pression**
 
