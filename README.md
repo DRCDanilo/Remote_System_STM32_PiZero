@@ -533,12 +533,50 @@ Seules les broches 2, 3 et 7 sont utilisés sur les câbles à votre disposition
 
 
 Vous allez utiliser le bus CAN pour piloter un module moteur pas-à-pas. Ce module s'alimente en +12V. L'ensemble des informations nécessaires pour utiliser ce module est disponible dans ce document:
-https://enseafr-my.sharepoint.com/:b:/r/personal/danilo_delriocisneros_ensea_fr/Documents/ENSEA/Dipl%C3%B4me%20-%20Semestres/S9%20-%20ESE/4-Bus%20et%20r%C3%A9seaux%20industriels/docs%20publics%20for%20GitHub/moteur.pdf?csf=1&web=1&e=Sqezai
+https://drive.google.com/file/d/1xfOPrjthAEr_BzlhE2BdFT3Q0j7nTmQJ/view?usp=sharing
 
 La carte moteur est un peu capricieuse et ne semble tolérer qu'une vitesse CAN de 500kbit/s. Pensez à régler CubeMx en conséquence.
 Edit 2022: Il semble que ce soit surtout le ratio seg2/(seg1+seg2), qui détermine l'instant de décision, qui doit être aux alentours de 87%. Vous pouvez utiliser le calculateur suivant: http://www.bittiming.can-wiki.info/
 
 ### 4.1 Pilotage du moteur
 
+Commencez par mettre en place un code simple, qui fait bouger le moteur de 90° dans un sens, puis de 90° dans l'autre, avec une période de 1 seconde.
+
+Vous utiliserez pour cela les primitives HAL suivantes:
+
+HAL_StatusTypeDef HAL_CAN_Start (CAN_HandleTypeDef * hcan)
+
+pour activer le module CAN et
+
+HAL_StatusTypeDef HAL_CAN_AddTxMessage (CAN_HandleTypeDef * hcan, CAN_TxHeaderTypeDef * pHeader, uint8_t aData[], uint32_t * pTxMailbox)
+
+pour envoyer un message, où:
+
+    CAN_HandleTypeDef * hcan pointeur vers la structure stockant les informations du contrôleur CAN
+    CAN_TxHeaderTypeDef * pHeader pointeur vers une structure stockant les informations du header de la trame CAN à envoyer
+    uint8_t aData[] buffer contenant les données à envoyer
+    uint32_t * pTxMailbox pointeur vers la boite au lettre de transmission
+
+
+La variable hcan est celle définie par CubeMX, donc normalement ce sera hcan1 .
+
+La variable pHeader est une structure contenant les champs suivants, que vous devez remplir avant de faire appel à HAL_CAN_AddTxMessage:
+
+    .StdId contient le message ID quand celui-ci est standard (11 bits)
+    .ExtId contient le message ID quand celui-ci est étendu (29 bits) 
+    .IDE définit si la trame est standard (CAN_ID_STD) ou étendue (CAN_ID_EXT)
+    .RTR définit si la trame est du type standard (CAN_RTR_DATA) ou RTR (CAN_RTR_REMOTE) (voir le cours)
+    .DLC entier représentant la taille des données à transmettre (entre 0 et 8)
+    .TransmitGlobal dispositif permettant de mesurer les temps de réponse du bus CAN, qu'on utilisera pas. Le fixer à DISABLE
+
+
+La gestion de priorité du bus CAN fait que l'on ne peux pas être sûr que notre message puisse être envoyé. C'est pourquoi la fonction HAL_StatusTypeDef utilise une boîte au lettre: le message est stocké dans la boite au lettre, et sera envoyé dès que le bus le permettra. Cette fonction renvoie le numéro de boîte au lettre via l'argument pTxMailbox , qui permet d'interroger l'état de l'envoi du message à n'importe quel moment dan le code (HAL_CAN_IsTxMessagePending) et même d'annuler un message en attente (HAL_CAN_AbortTxRequest)
+
 
 ### 4.2 Interfaçage avec le capteur
+
+En reprenant le code des TP précédents, faites en sorte que le mouvement du moteur soit proportionnel à la valeur du capteur.
+
+Le coefficient de proportionnalité sera stocké dans une variable. Le calcul peut parfaitement se faire à partir de la donnée issue du capteur sous forme binaire (le calcul avec la calibration n'est pas nécessaire à ce stade).
+
+Attention: le shield utilisant les pin PB8 et PB9 pour le CAN, vous allez devoir changer les pins du bus I2C, voir même changer de contrôleur I2C. Dans ce dernier cas, il faudra changer les noms de vos variables hi2c1 vers hic2cX.
