@@ -234,6 +234,7 @@ minicom -D /dev/ttyAMA0
 ```
 
 **Communication avec la STM32**
+
 Le port UART pour la communication avec la Raspberri Pi Zero est le port UART1.
 
 Le protocole de communication entre le Raspberry et la STM32 est le suivant:
@@ -251,7 +252,7 @@ sudo apt install python3-pip
 
 Après, on a installé la bibliothèque pyserial pour acceder au port série.
 
-On a écrit un script en utilisant Python 3 qui permet communiquer avec le STM32. Le script est dans **...?**
+On a écrit un script en utilisant Python 3 qui permet communiquer avec le STM32.
 
 ## 3. Interface REST
 
@@ -296,11 +297,60 @@ Après, on a À nouveau, délogguez vous, puis relogguez vous en tant que XXX po
 
 **Premier fichier Web**
 
+On a crée un fichier hello.py dans lequel vous placerez le code suivant:
+
+```
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return 'Hello, World!\n'
+```
+
+Voilà, un nouveau serveur web! On peut le lancer avec:
+
+```
+pi@raspberrypi:~/server $ FLASK_APP=hello.py flask run
+```
+
+Il est possible de tester le nouveau serveur avec la commande curl (dans un 2e terminal):
+
+```
+pi@raspberrypi:~/server $ curl http://127.0.0.1:5000
+```
+
+Il est possible aussi ajouter les options -s -D - à cette commande pour visualiser les headers de la réponse HTTP (regardez en particulier le champ Server).
+
+Le problème est que le serveur ne fonctionne pour le moment que sur la loopback. Cela est résolue avec:
+
+```
+pi@raspberrypi:~/server $ FLASK_APP=hello.py FLASK_ENV=development flask run --host 0.0.0.0
+```
+
+La constante FLASK_ENV=development permet de lancer un mode debug. À partir de maintenant, vous pouvez tester votre serveur web avec un navigateur.
+
 
 ### 3.2 Première page REST
 
 
 **Première route**
+
+On a ajouté les lignes suivantes au fichier hello.py:
+
+```
+welcome = "Welcome to 3ESE API!"
+
+@app.route('/api/welcome/')
+def api_welcome():
+    return welcome
+    
+@app.route('/api/welcome/<int:index>')
+def api_welcome_index(index):
+    return welcome[index]
+```
+
+
 
 Quel est le rôle du décorateur @app.route?
 
@@ -328,6 +378,8 @@ On a modifié le fihcier hello.py. On a ajouté la ligne import json et on a rem
 return json.dumps({"index": index, "val": welcome[index]})
 ```
 
+(oubliez pas le import json en début de fichier!)
+
 Le résultat est:
 
 IMGAGE DU ORDINATEUR DE DAVID AVEC {"index":6, "val": "c"}.
@@ -337,16 +389,19 @@ Est-ce suffisant pour dire que la réponse est bien du JSON? : Non, car le Conte
 
 **1re solution**
 
-On a modifié la réponse, ....,  en ajoutant la commande suivante: 
+On a modifié la réponse renvoyée par flask en ajoutant la commande suivante: 
 
 ```
 return json.dumps({"index": index, "val": welcome[index]}), {"Content-Type": "application/json"}
 ```
 
+À partir de maintenant la réponse est bien du JSON, et Firefox vous présente le résultat de manière différente (Chrome aussi, mais c’est moins visible).
+
 IMAGEN DE DAVID OÙ IL DIT OBJECT TYPE: JSON
 
 
 **2e solution**
+
 On a utilisé jsonify() existe dans la bibliothèque. On a ajouté ```from flask import jsonify```.
 
 
@@ -356,7 +411,8 @@ return jsonify({"index": index, "val": welcome[index]})
 
 **Erreur 404**
 
-On a téléchargé le fichier page_not:found.html (https://moodle.ensea.fr/mod/resource/view.php?id=19916). On l'ajouté dans le fichier templates. 
+
+On a téléchargé le fichier page_not:found.html (https://drive.google.com/file/d/1JAC_jWvuJpnbsEVo1kSjSkjz0CSeFVO6/view?usp=sharing). On l'ajouté dans le fichier templates. 
 
 On a ajouté le code suivant:
 
@@ -385,6 +441,7 @@ IMAGE DE DAVID AVEC L'ERREUR 404 DANS LE NAVIGATEUR
 ### 3.3 Nouvelles métodes HTTP
 
 **Méthodes POST, PUT, DELETE…**
+
 Pour être encore un peu plus RESTful, votre application doit gérer plusieurs méthodes (verb) HTTP
 
 **Méthode POST**
@@ -415,6 +472,8 @@ def api_request(path=None):
     return jsonify(resp)
 ```
 
+Faite en sorte notamment d’obtenir une réponse qui peuple correctement les champs args et data.
+
 <img width="795" height="208" alt="image" src="https://github.com/user-attachments/assets/c9aa6767-2189-4ee4-be45-716a155b1800" />
 
 En plus, on a testé depuis la Raspberry:
@@ -432,13 +491,26 @@ On a testé la méthode GET :
 <img width="1237" height="847" alt="image" src="https://github.com/user-attachments/assets/860bfba0-6300-4df3-94e6-e6b2276038fb" />
 
 
-
-
 **API CRUD**
+
+En reprenant la fonction api_welcome_index, ajoutez-y les fonctions CRUD suivantes:
+
 
 <img width="646" height="381" alt="image" src="https://github.com/user-attachments/assets/3342fa5b-49a4-4e99-aa7e-6dfc4e3374b9" />
 
+Pour chaque action, l’échange de donnée doit se faire en JSON, et si une action ne renvoie rien, alors le code status de la réponse doit être modifié. Par exemple, le POST doit retourner un 202 No Content
+
+Pour les codes de succès HTTP: https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2
+
+
 ### 3.4 Et encore plus fort...
+
+
+Le code écrit avec Flask pour créer une API REST est rapide, mais finalement il y a encore beaucoup de redondance...
+
+Et donc, il y a encore plus fort: FASTAPI, https://fastapi.tiangolo.com/
+
+En plus d'accélérer encore plus l'écriture du code, FASTAPI est auto-documenté... Essayez de réécrire votre code avec FASTAPI, et allez voir la page /docs.
 
 
 ## 4. Bus CAN
